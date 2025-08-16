@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Document(collation="foods")
+@Document(collection="foods")
 public class FoodEntity {
 
 	@Id

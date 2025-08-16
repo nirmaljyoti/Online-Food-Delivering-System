@@ -1,6 +1,12 @@
 package com.nirmaljyoti.foodiesapi.controller;
 
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -18,6 +24,7 @@ import com.nirmaljyoti.foodiesapi.service.FoodService;
 @RequestMapping("/api/foods")
 public class FoodController {
 
+	@Autowired
 	private FoodService foodService;
 
 	@PostMapping()
@@ -32,5 +39,19 @@ public class FoodController {
 
 		FoodResponse foodResponse = foodService.addFood(foodRequest, file);
 		return foodResponse;
+	}
+	@GetMapping
+    public List<FoodResponse> readFoods() {
+        return this.foodService.readFoods();
+    }
+
+	@GetMapping("/{id}")
+    public FoodResponse readFood(@PathVariable String id) {
+        return this.foodService.readFood(id);
+    }
+
+	@DeleteMapping("/{id}")
+	public void deleteFood(@PathVariable String id){
+		this.foodService.deleteFood(id);
 	}
 }

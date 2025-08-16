@@ -1,7 +1,10 @@
 package com.nirmaljyoti.foodiesapi.service;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,6 +20,7 @@ import com.nirmaljyoti.foodiesapi.repository.FoodRepository;
 
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectResponse;
 
@@ -71,8 +75,41 @@ public class FoodServiceImpl implements FoodService {
 	}
 
 	private FoodResponse convertToResponse(FoodEntity savedFoodEntity) {
-		return FoodResponse.builder().name(savedFoodEntity.getName()).category(savedFoodEntity.getCategory())
+		return FoodResponse.builder().id(savedFoodEntity.getId()).name(savedFoodEntity.getName()).category(savedFoodEntity.getCategory())
 				.description(savedFoodEntity.getDescription()).imageUrl(savedFoodEntity.getImageUrl())
 				.price(savedFoodEntity.getPrice()).build();
 	}
+
+	@Override
+	public List<FoodResponse> readFoods() {
+		// TODO Auto-generated method stub
+		List<FoodEntity> all = this.foodRepository.findAll();
+		return all.stream().map(object->convertToResponse(object)).collect(Collectors.toList());
+	}
+
+	public FoodResponse readFood(String id){
+		FoodEntity entity = this.foodRepository.findById(id).orElseThrow(()-> new RuntimeException("food not found with id : "+ id));
+		return convertToResponse(entity);
+	}
+
+	public boolean deleteFile(String filename){
+		DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
+		.bucket(bucketName)
+		.key(filename)
+		.build();
+		s3Client.deleteObject(deleteObjectRequest);
+		return true;
+	}
+
+	public void deleteFood(String id)
+	{
+		FoodResponse food = readFood(id);
+		String imageUrl = food.getImageUrl();
+		String filename = imageUrl.substring(imageUrl.lastIndexOf("/")+1);
+		boolean isFileDeleted = deleteFile(filename);
+		if(isFileDeleted){
+			foodRepository.deleteById(food.getId());
+		}
+	}
+
 }
