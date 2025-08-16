@@ -1,7 +1,6 @@
 package com.nirmaljyoti.foodiesapi.service;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -82,7 +81,6 @@ public class FoodServiceImpl implements FoodService {
 
 	@Override
 	public List<FoodResponse> readFoods() {
-		// TODO Auto-generated method stub
 		List<FoodEntity> all = this.foodRepository.findAll();
 		return all.stream().map(object->convertToResponse(object)).collect(Collectors.toList());
 	}
